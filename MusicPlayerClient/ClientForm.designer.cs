@@ -33,12 +33,12 @@
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
       this.PbDownload = new System.Windows.Forms.ProgressBar();
       this.BtnBrowse = new System.Windows.Forms.Button();
-      this.BtnConnect = new System.Windows.Forms.Button();
+      this.BtnToggle = new System.Windows.Forms.Button();
       this.BtnDownload = new System.Windows.Forms.Button();
-      this.textBox2 = new System.Windows.Forms.TextBox();
+      this.TbPort = new System.Windows.Forms.TextBox();
       this.label2 = new System.Windows.Forms.Label();
       this.TbPath = new System.Windows.Forms.TextBox();
-      this.textBox1 = new System.Windows.Forms.TextBox();
+      this.TbIp = new System.Windows.Forms.TextBox();
       this.label4 = new System.Windows.Forms.Label();
       this.label1 = new System.Windows.Forms.Label();
       this.label3 = new System.Windows.Forms.Label();
@@ -122,12 +122,12 @@
       // 
       this.splitContainer2.Panel1.Controls.Add(this.PbDownload);
       this.splitContainer2.Panel1.Controls.Add(this.BtnBrowse);
-      this.splitContainer2.Panel1.Controls.Add(this.BtnConnect);
+      this.splitContainer2.Panel1.Controls.Add(this.BtnToggle);
       this.splitContainer2.Panel1.Controls.Add(this.BtnDownload);
-      this.splitContainer2.Panel1.Controls.Add(this.textBox2);
+      this.splitContainer2.Panel1.Controls.Add(this.TbPort);
       this.splitContainer2.Panel1.Controls.Add(this.label2);
       this.splitContainer2.Panel1.Controls.Add(this.TbPath);
-      this.splitContainer2.Panel1.Controls.Add(this.textBox1);
+      this.splitContainer2.Panel1.Controls.Add(this.TbIp);
       this.splitContainer2.Panel1.Controls.Add(this.label4);
       this.splitContainer2.Panel1.Controls.Add(this.label1);
       this.splitContainer2.Panel1.Controls.Add(this.label3);
@@ -158,15 +158,15 @@
       this.BtnBrowse.Text = "Find Path";
       this.BtnBrowse.UseVisualStyleBackColor = true;
       // 
-      // BtnConnect
+      // BtnToggle
       // 
-      this.BtnConnect.Location = new System.Drawing.Point(6, 50);
-      this.BtnConnect.Name = "BtnConnect";
-      this.BtnConnect.Size = new System.Drawing.Size(163, 41);
-      this.BtnConnect.TabIndex = 2;
-      this.BtnConnect.Text = "Connect";
-      this.BtnConnect.UseVisualStyleBackColor = true;
-      this.BtnConnect.Click += new System.EventHandler(this.BtnConnect_Click);
+      this.BtnToggle.Location = new System.Drawing.Point(6, 50);
+      this.BtnToggle.Name = "BtnToggle";
+      this.BtnToggle.Size = new System.Drawing.Size(163, 41);
+      this.BtnToggle.TabIndex = 2;
+      this.BtnToggle.Text = "Connect";
+      this.BtnToggle.UseVisualStyleBackColor = true;
+      this.BtnToggle.Click += new System.EventHandler(this.BtnConnect_Click);
       // 
       // BtnDownload
       // 
@@ -178,14 +178,14 @@
       this.BtnDownload.Text = "재생 목록에 추가";
       this.BtnDownload.UseVisualStyleBackColor = true;
       // 
-      // textBox2
+      // TbPort
       // 
-      this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.textBox2.Location = new System.Drawing.Point(273, 12);
-      this.textBox2.Name = "textBox2";
-      this.textBox2.Size = new System.Drawing.Size(78, 23);
-      this.textBox2.TabIndex = 1;
-      this.textBox2.Text = "8888";
+      this.TbPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.TbPort.Location = new System.Drawing.Point(273, 12);
+      this.TbPort.Name = "TbPort";
+      this.TbPort.Size = new System.Drawing.Size(78, 23);
+      this.TbPort.TabIndex = 1;
+      this.TbPort.Text = "8888";
       // 
       // label2
       // 
@@ -206,14 +206,15 @@
       this.TbPath.Size = new System.Drawing.Size(190, 23);
       this.TbPath.TabIndex = 1;
       // 
-      // textBox1
+      // TbIp
       // 
-      this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      this.TbIp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.textBox1.Location = new System.Drawing.Point(33, 12);
-      this.textBox1.Name = "textBox1";
-      this.textBox1.Size = new System.Drawing.Size(190, 23);
-      this.textBox1.TabIndex = 1;
+      this.TbIp.Location = new System.Drawing.Point(33, 12);
+      this.TbIp.Name = "TbIp";
+      this.TbIp.Size = new System.Drawing.Size(190, 23);
+      this.TbIp.TabIndex = 1;
+      this.TbIp.Text = "127.0.0.1";
       // 
       // label4
       // 
@@ -481,9 +482,9 @@
     private System.Windows.Forms.GroupBox groupBox1;
     private System.Windows.Forms.GroupBox groupBox2;
     private System.Windows.Forms.SplitContainer splitContainer2;
-    private System.Windows.Forms.TextBox textBox2;
+    private System.Windows.Forms.TextBox TbPort;
     private System.Windows.Forms.Label label2;
-    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.TextBox TbIp;
     private System.Windows.Forms.Label LbPlayerStatus;
     private System.Windows.Forms.SplitContainer splitContainer3;
     private System.Windows.Forms.Button BtnBrowse;
@@ -496,7 +497,7 @@
     private System.Windows.Forms.TrackBar TrProgrss;
     private System.Windows.Forms.Button NextButton;
     private System.Windows.Forms.Button PlayButton;
-    private System.Windows.Forms.Button BtnConnect;
+    private System.Windows.Forms.Button BtnToggle;
     private System.Windows.Forms.Label label1;
     private System.Windows.Forms.ListView lvLocalList;
     private System.Windows.Forms.ColumnHeader columnHeader1;

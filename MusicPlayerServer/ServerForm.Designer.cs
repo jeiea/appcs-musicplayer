@@ -47,7 +47,6 @@
       this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.label5 = new System.Windows.Forms.Label();
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-      this.FdMp3Repo = new System.Windows.Forms.FolderBrowserDialog();
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
       this.splitContainer1.Panel1.SuspendLayout();
       this.splitContainer1.Panel2.SuspendLayout();
@@ -125,7 +124,6 @@
       this.BtnBrowse.TabIndex = 3;
       this.BtnBrowse.Text = "Find Path";
       this.BtnBrowse.UseVisualStyleBackColor = true;
-      this.BtnBrowse.Click += new System.EventHandler(this.BtnBrowse_Click);
       // 
       // splitContainer1
       // 
@@ -156,6 +154,7 @@
       this.TbLog.Name = "TbLog";
       this.TbLog.Size = new System.Drawing.Size(237, 480);
       this.TbLog.TabIndex = 0;
+      this.TbLog.WordWrap = false;
       // 
       // label4
       // 
@@ -248,10 +247,6 @@
       this.splitContainer2.SplitterDistance = 89;
       this.splitContainer2.TabIndex = 3;
       // 
-      // FdMp3Repo
-      // 
-      this.FdMp3Repo.Description = "MP3 파일 폴더를 지정해주세요.";
-      // 
       // ServerForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -297,7 +292,6 @@
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.ColumnHeader columnHeader5;
     private System.Windows.Forms.SplitContainer splitContainer2;
-    private System.Windows.Forms.FolderBrowserDialog FdMp3Repo;
   }
 }
 

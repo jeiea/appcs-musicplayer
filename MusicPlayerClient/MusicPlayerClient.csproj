@@ -7,7 +7,7 @@
     <ProjectGuid>{4BA6AB1E-0BE8-4459-994E-4C643F2C609A}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>MusicPlayerClient</RootNamespace>
-    <AssemblyName>HW2MusicPlayer</AssemblyName>
+    <AssemblyName>MusicPlayerClient</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -53,6 +53,8 @@
     </Compile>
     <Compile Include="MusicPlayerClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol.cs" />
+    <Compile Include="Shared.cs" />
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -91,6 +93,25 @@
   <ItemGroup>
     <None Include="Res\Prev.png" />
   </ItemGroup>
-  <Import Project="..\MusicPlayerCommon\MusicPlayerCommon.projitems" Label="Shared" />
+  <ItemGroup>
+    <COMReference Include="MIMEEDIT">
+      <Guid>{1C82EAD8-508E-11D1-8DCF-00C04FB951F9}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="WMPLib">
+      <Guid>{6BF52A50-394A-11D3-B153-00C04F79FAA6}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

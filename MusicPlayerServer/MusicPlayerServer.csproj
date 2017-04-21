@@ -89,6 +89,11 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <Import Project="..\MusicPlayerCommon\MusicPlayerCommon.projitems" Label="Shared" />
+  <ItemGroup>
+    <ProjectReference Include="..\MusicPlayerClient\MusicPlayerClient.csproj">
+      <Project>{4ba6ab1e-0be8-4459-994e-4c643f2c609a}</Project>
+      <Name>MusicPlayerClient</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

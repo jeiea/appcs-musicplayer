@@ -17,7 +17,7 @@ namespace MusicPlayerCommon
 
     public string Bitrate
     {
-      get { return $"{(FileSize / Convert.ToInt32(Duration) * 8 / 1024).ToString()}kbps"; }
+      get { return $"{(FileSize / Convert.ToInt32(Duration.TotalSeconds) * 8 / 1024).ToString()}kbps"; }
     }
 
     public string[] ListItem
