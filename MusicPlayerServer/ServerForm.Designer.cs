@@ -39,7 +39,7 @@
       this.splitContainer1 = new System.Windows.Forms.SplitContainer();
       this.TbLog = new System.Windows.Forms.TextBox();
       this.label4 = new System.Windows.Forms.Label();
-      this.LvMusics = new System.Windows.Forms.ListView();
+      this.LvTracks = new System.Windows.Forms.ListView();
       this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -139,7 +139,7 @@
       // 
       // splitContainer1.Panel2
       // 
-      this.splitContainer1.Panel2.Controls.Add(this.LvMusics);
+      this.splitContainer1.Panel2.Controls.Add(this.LvTracks);
       this.splitContainer1.Panel2.Controls.Add(this.label5);
       this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(0, 20, 10, 10);
       this.splitContainer1.Size = new System.Drawing.Size(750, 510);
@@ -167,21 +167,21 @@
       // 
       // LvMusics
       // 
-      this.LvMusics.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+      this.LvTracks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader5,
             this.columnHeader1,
             this.columnHeader2,
             this.columnHeader3,
             this.columnHeader4});
-      this.LvMusics.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.LvMusics.FullRowSelect = true;
-      this.LvMusics.Location = new System.Drawing.Point(0, 20);
-      this.LvMusics.MinimumSize = new System.Drawing.Size(100, 100);
-      this.LvMusics.Name = "LvMusics";
-      this.LvMusics.Size = new System.Drawing.Size(489, 480);
-      this.LvMusics.TabIndex = 0;
-      this.LvMusics.UseCompatibleStateImageBehavior = false;
-      this.LvMusics.View = System.Windows.Forms.View.Details;
+      this.LvTracks.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.LvTracks.FullRowSelect = true;
+      this.LvTracks.Location = new System.Drawing.Point(0, 20);
+      this.LvTracks.MinimumSize = new System.Drawing.Size(100, 100);
+      this.LvTracks.Name = "LvMusics";
+      this.LvTracks.Size = new System.Drawing.Size(489, 480);
+      this.LvTracks.TabIndex = 0;
+      this.LvTracks.UseCompatibleStateImageBehavior = false;
+      this.LvTracks.View = System.Windows.Forms.View.Details;
       // 
       // columnHeader5
       // 
@@ -283,7 +283,7 @@
     private System.Windows.Forms.Button BtnBrowse;
     private System.Windows.Forms.SplitContainer splitContainer1;
     private System.Windows.Forms.TextBox TbLog;
-    private System.Windows.Forms.ListView LvMusics;
+    private System.Windows.Forms.ListView LvTracks;
     private System.Windows.Forms.ColumnHeader columnHeader1;
     private System.Windows.Forms.ColumnHeader columnHeader2;
     private System.Windows.Forms.ColumnHeader columnHeader3;
