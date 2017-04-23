@@ -98,17 +98,39 @@ namespace MusicPlayerServer
         var stream = client.GetStream();
         await PushTrackList(stream);
 
-        var sendQueue = new MyBufferBlock<byte[]>();
-        WriteQueues.Add(sendQueue);
-        ClientReceiveHandler(stream, sendQueue);
+        Task<object> readTask = stream.ReadObjAsync();
+        Task<bool> knockTask = Dispatcher.WaitAsync();
 
         var token = WorkerAbort.Token;
+        token.Register(() => stream.Close());
         while (!token.IsCancellationRequested)
         {
-          // 아마 가장 고민한 부분.
-          // 그래도 고민만 할 순 없으므로, 그냥 2개로 쪼개기로.
-          byte[] content = await sendQueue.ReceiveAsync(token);
-          await stream.WriteAsync(content, 0, content.Length, token);
+          await Task.WhenAny(readTask, knockTask);
+          if (readTask.IsCompleted)
+          {
+            if (readTask.IsFaulted) return;
+            switch (await readTask)
+            {
+              case DownloadRequest req:
+                var item = Invoke(new Func<object>(() => LvTracks.Items[req.Index].Tag)) as TrackMetadata;
+                var blob = new FileBlob()
+                {
+                  Name = Path.GetFileName(item.Path),
+                  Body = File.ReadAllBytes(item.Path)
+                };
+                await stream.WriteObjAsync(blob);
+                break;
+              case FileBlob file:
+                // TODO: File upload
+                break;
+            }
+            readTask = stream.ReadObjAsync();
+          }
+          if (knockTask.IsCompleted)
+          {
+            await PushTrackList(stream);
+            knockTask = Dispatcher.WaitAsync();
+          }
         }
       }
       catch (Exception e)
@@ -126,7 +148,7 @@ namespace MusicPlayerServer
     {
       while (!WorkerAbort.IsCancellationRequested)
       {
-        switch (await reader.ReadLenAsync(WorkerAbort.Token))
+        switch (await reader.ReadObjAsync())
         {
           case DownloadRequest req:
             var item = Invoke(new Func<object>(() => LvTracks.Items[req.Index].Tag)) as TrackMetadata;
@@ -135,7 +157,7 @@ namespace MusicPlayerServer
               Name = Path.GetFileName(item.Path),
               Body = File.ReadAllBytes(item.Path)
             };
-            send.Enqueue(AsyncUtility.GetPrefixedSerial(blob));
+            send.Enqueue(SerialUtility.GetPrefixedSerial(blob));
             break;
           case FileBlob file:
             // TODO: File upload
@@ -153,7 +175,7 @@ namespace MusicPlayerServer
           .OfType<TrackMetadata>().ToArray();
         return ar;
       }));
-      await stream.WriteLenAsync(metas);
+      await stream.WriteObjAsync(metas);
     }
   }
 }

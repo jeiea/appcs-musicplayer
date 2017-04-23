@@ -43,23 +43,23 @@ namespace MusicPlayerCommon
     public int Index;
   }
 
-  public static class AsyncUtility
+  public static class SerialUtility
   {
     public static BinaryFormatter Formatter = new BinaryFormatter();
 
-    public static async Task WriteLenAsync(this Stream s, object o)
+    public static async Task WriteObjAsync(this Stream s, object o)
     {
-      await WriteLenAsync(s, o, CancellationToken.None);
+      await WriteObjAsync(s, o, CancellationToken.None);
     }
 
-    public static async Task WriteLenAsync(this Stream s, object o, CancellationToken token)
+    public static async Task WriteObjAsync(this Stream s, object o, CancellationToken token)
     {
       MemoryStream ms = GetPrefixedSerialStream(o);
       token.ThrowIfCancellationRequested();
       await ms.CopyToAsync(s, 8192, token);
     }
 
-    // async is not useful: http://stackoverflow.com/a/20805616
+    // async is not useful for MemoryStream: http://stackoverflow.com/a/20805616
     static MemoryStream GetPrefixedSerialStream(object o)
     {
       var ms = new MemoryStream();
@@ -79,30 +79,27 @@ namespace MusicPlayerCommon
       return buf;
     }
 
-    public static async Task<object> ReadLenAsync(this Stream s)
+    public static async Task<object> ReadObjAsync(this Stream s)
     {
-      return await ReadLenAsync(s, CancellationToken.None);
-    }
-
-    public static async Task<object> ReadLenAsync(this Stream s, CancellationToken token)
-    {
-      byte[] lenHeader = new byte[sizeof(long)];
-      int read = 0, bytesRead;
-
-      while ((bytesRead = await s.ReadAsync(lenHeader, read, sizeof(long) - read, token)) > 0
-        && read < sizeof(long)) read += bytesRead;
-      if (read != sizeof(long)) throw new EndOfStreamException();
-      token.ThrowIfCancellationRequested();
+      byte[] lenHeader = await s.ReadLenAsync(sizeof(long));
 
       int len = (int)BitConverter.ToInt64(lenHeader, 0);
-      byte[] buf = new byte[len];
-      read = 0;
-      while (read < len && (bytesRead = await s.ReadAsync(buf, read, len - read, token)) > 0)
-        read += bytesRead;
-      if (read != len) throw new EndOfStreamException();
-      token.ThrowIfCancellationRequested();
+      byte[] buf = await s.ReadLenAsync(len);
 
       return Formatter.Deserialize(new MemoryStream(buf));
+    }
+    
+    // CancellationToken does nothing for NetworkStream.ReadAsync
+    public static async Task<byte[]> ReadLenAsync(this Stream s, int len)
+    {
+      byte[] buf = new byte[len];
+      int read = 0, justRead;
+
+      while (read < len && (justRead = await s.ReadAsync(buf, read, len - read)) > 0)
+        read += justRead;
+      if (read != len) throw new EndOfStreamException();
+
+      return buf;
     }
   }
 }

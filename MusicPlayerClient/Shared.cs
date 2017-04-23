@@ -90,6 +90,23 @@ namespace MusicPlayerCommon
     }
   }
 
+  public static class AsyncUtility
+  {
+    public static Task IgnoreExceptions(this Task task)
+    {
+      return task.ContinueWith(c => { var ignored = c.Exception; },
+        TaskContinuationOptions.OnlyOnFaulted |
+        TaskContinuationOptions.ExecuteSynchronously);
+    }
+
+    public static Task GetHold(this CancellationToken token)
+    {
+      var task = new TaskCompletionSource<bool>();
+      token.Register(() => task.SetResult(true));
+      return task.Task;
+    }
+  }
+
   public class MyBufferBlock<T>
   {
     private ConcurrentQueue<T> DataQueue = new ConcurrentQueue<T>();

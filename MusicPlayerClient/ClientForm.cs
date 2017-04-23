@@ -52,6 +52,7 @@ namespace MusicPlayerClient
       if (Worker != null)
       {
         WorkerAbort.Cancel();
+        Worker.Wait(100);
         ReflectDisconnection();
         return;
       }
@@ -83,22 +84,28 @@ namespace MusicPlayerClient
     async void TcpWorker(IPEndPoint addr)
     {
       var client = new TcpClient();
+      Task<object> readTask = null;
       try
       {
         await client.ConnectAsync(addr.Address, addr.Port);
 
         Invoke(new Action(ReflectConnection));
         var stream = client.GetStream();
+        Task cancelTask = WorkerAbort.Token.GetHold();
+        readTask = stream.ReadObjAsync();
         while (true)
         {
-          var metas = await stream.ReadLenAsync(WorkerAbort.Token) as TrackMetadata[];
+          await Task.WhenAny(readTask, cancelTask);
           if (WorkerAbort.IsCancellationRequested) break;
+          if (!readTask.IsCompleted) break;
+          var metas = readTask.Result as TrackMetadata[];
           var items = metas.Select(x => new ListViewItem(x.ListItem)).ToArray();
           Invoke(new Action(() =>
           {
             lvRemoteList.Items.Clear();
             lvRemoteList.Items.AddRange(items);
           }));
+          readTask = stream.ReadObjAsync();
         }
       }
       catch (Exception e) {
