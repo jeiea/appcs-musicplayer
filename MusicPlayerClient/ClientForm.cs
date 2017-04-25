@@ -1,6 +1,5 @@
 ﻿using MusicPlayerCommon;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -83,6 +82,7 @@ namespace MusicPlayerClient
 
     private void OnWmpPlayStateChange(int NewState)
     {
+      System.Diagnostics.Debug.WriteLine($"OnWmpPlayStateChange: {Wmp.playState}");
       var media = Wmp.currentMedia;
       switch (Wmp.playState)
       {
@@ -145,6 +145,7 @@ namespace MusicPlayerClient
     private void OnWmpMediaChange(object obj)
     {
       var media = Wmp.currentMedia;
+      System.Diagnostics.Debug.WriteLine($"OnWmpMediaChange: {media.name ?? "null"}");
       LbPlayerStatus.Text = media.name;
       TrProgress.Maximum = (int)(Convert.ToDouble(media.duration) * 1000 / TrackBarTimer.Interval);
       TrackBarUpdateTick(null, null);

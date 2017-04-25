@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Linq;
 using WMPLib;
 
 namespace MusicPlayerCommon

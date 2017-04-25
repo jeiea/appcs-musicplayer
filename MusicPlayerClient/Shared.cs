@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -59,16 +58,11 @@ namespace MusicPlayerCommon
       var fd = new FolderBrowserDialog();
       fd.RootFolder = Environment.SpecialFolder.MyComputer;
 
-      // TODO: 테스트 코드 제거
-      //if (!Directory.Exists(tbPath.Text))
-      //{
-      //  if (fd.ShowDialog() != DialogResult.OK) return;
-      //  tbPath.Text = fd.SelectedPath;
-      //}
-      var name = System.Reflection.Assembly.GetEntryAssembly().FullName;
-      tbPath.Text = name.StartsWith("MusicPlayerClient")
-        ? @"D:\Jeiea\Study\3학년 1학기\응용소프트웨어\HW2\ClientRepo"
-        : @"D:\Jeiea\Study\3학년 1학기\응용소프트웨어\HW2\ServerRepo";
+      if (!Directory.Exists(tbPath.Text))
+      {
+        if (fd.ShowDialog() != DialogResult.OK) return;
+        tbPath.Text = fd.SelectedPath;
+      }
 
       items.Clear();
       var wmp = new WindowsMediaPlayer();
