@@ -119,7 +119,9 @@ namespace MusicPlayerServer
                   Body = File.ReadAllBytes(item.Path)
                 };
                 await stream.WriteObjAsync(new Announcement($"Downloading {blob.Name}"));
-                await stream.WriteObjAsync(blob);
+                await new MemoryStream(SerialUtility.GetPrefixedSerial(blob))
+                  .ThrottleCopyTo(stream, 2 * 1024 * 1024, token);
+                //await stream.WriteObjAsync(blob);
                 break;
               case FileBlob file:
                 // TODO: File upload

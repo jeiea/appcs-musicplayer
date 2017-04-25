@@ -20,11 +20,8 @@ namespace MusicPlayerClient
     CancellationTokenSource WorkerAbort;
     MyBufferBlock<object> WriteQueues = new MyBufferBlock<object>();
     WindowsMediaPlayer Wmp = new WindowsMediaPlayer();
-    List<IWMPMedia> Media = new List<IWMPMedia>();
-    List<int> LastSelectedIndices = new List<int>();
     System.Windows.Forms.Timer TrackBarTimer =
       new System.Windows.Forms.Timer() { Interval = 1000 };
-    TransparentLabel LbProgress;
     PlayListViewItemCollection Playlist;
     MyDispatcher Dispatcher;
     string ServerMessage;
@@ -38,18 +35,6 @@ namespace MusicPlayerClient
       BtnBrowse.Click += (s, e) => RefreshLocalTracks();
       TbIp.Text = CommonBehavior.GetLocalIPAddress().ToString();
       Playlist = new PlayListViewItemCollection(LvLocalList, Wmp);
-
-      // Progress label initialization
-      LbProgress = new TransparentLabel()
-      {
-        Anchor = AnchorStyles.None,
-        ForeColor = Color.Black,
-        Parent = PbDownload,
-        Location = new Point(-110, 4),
-        Size = new Size(600, 15),
-        Visible = false,
-        TextAlign = ContentAlignment.MiddleCenter
-      };
 
       Wmp.currentPlaylist = Wmp.newPlaylist("no title", "");
       Wmp.CurrentItemChange += OnWmpMediaChange;
@@ -177,12 +162,16 @@ namespace MusicPlayerClient
     void ReportProgress(double ratio)
     {
       if (ServerMessage == null) return;
-      Dispatcher.Post(() => { LbProgress.Text = $"{ServerMessage}: {ratio}%"; });
+      Dispatcher.Post(() =>
+      {
+        PbDownload.Value = (int)(ratio * 1000000);
+        Text = string.Format("Music Player Client - {0}: {1:0.0%}", ServerMessage, ratio);
+      });
     }
 
     private async Task ProcessServerMessage(NetworkStream stream)
     {
-      switch (await stream.ReadObjAsync(ReportProgress).ConfigureAwait(false))
+      switch (await stream.ReadObjAsync(ReportProgress))
       {
         case TrackMetadata[] metas:
           var items = metas.Select(x => new ListViewItem(x.ListItem)).ToArray();
@@ -217,12 +206,11 @@ namespace MusicPlayerClient
             MessageBox.Show(e.Message);
           }
           ServerMessage = null;
-          Dispatcher.Post(LbProgress.Hide);
+          Dispatcher.Post(() => { Text = "Music Player Client"; });
           break;
         case Announcement msg:
           ServerMessage = msg.Message;
           ReportProgress(0);
-          Dispatcher.Post(LbProgress.Show);
           break;
       }
     }
@@ -304,25 +292,6 @@ namespace MusicPlayerClient
       {
         Playlist.Clear();
         TbPath.BackColor = Color.Pink;
-      }
-    }
-  }
-
-  // http://stackoverflow.com/a/608256
-  public class TransparentLabel : Label
-  {
-    public TransparentLabel()
-    {
-      SetStyle(ControlStyles.Opaque, true);
-      SetStyle(ControlStyles.OptimizedDoubleBuffer, false);
-    }
-    protected override CreateParams CreateParams
-    {
-      get
-      {
-        CreateParams parms = base.CreateParams;
-        parms.ExStyle |= 0x20;  // Turn on WS_EX_TRANSPARENT
-        return parms;
       }
     }
   }

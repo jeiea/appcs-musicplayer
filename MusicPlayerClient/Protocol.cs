@@ -61,11 +61,29 @@ namespace MusicPlayerCommon
       await WriteObjAsync(s, o, CancellationToken.None);
     }
 
-    public static async Task WriteObjAsync(this Stream s, object o, CancellationToken token)
+    public static async Task WriteObjAsync(this Stream s, object o,
+      CancellationToken token, int bytesPerSec = 0)
     {
       MemoryStream ms = GetPrefixedSerialStream(o);
       token.ThrowIfCancellationRequested();
       await ms.CopyToAsync(s, 8192, token);
+    }
+
+    public static async Task ThrottleCopyTo(this Stream source, Stream dest,
+      int bytesPerSec, CancellationToken token)
+    {
+      int len = bytesPerSec / 10, read = 1;
+      byte[] buf = new byte[len];
+      DateTime t1 = DateTime.Now;
+      while (!token.IsCancellationRequested)
+      {
+        read = await source.ReadAsync(buf, 0, len, token);
+        if (read == 0) break;
+        await dest.WriteAsync(buf, 0, read, token);
+        DateTime t2 = DateTime.Now;
+        await Task.Delay((int)Math.Max(100 - (t2 - t1).TotalMilliseconds, 0), token);
+        t1 = t2;
+      }
     }
 
     // async is not useful for MemoryStream: http://stackoverflow.com/a/20805616
@@ -97,10 +115,11 @@ namespace MusicPlayerCommon
 
       return Formatter.Deserialize(new MemoryStream(buf));
     }
-    
+
     // CancellationToken does nothing for NetworkStream.ReadAsync
     public static async Task<byte[]> ReadLenAsync(this Stream s, int len, Action<double> progress = null)
     {
+      if (len < 0) throw new ArgumentException("len cannnot be negative");
       byte[] buf = new byte[len];
       int read = 0, justRead;
 

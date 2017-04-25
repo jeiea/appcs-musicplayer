@@ -255,7 +255,7 @@
       this.Font = new System.Drawing.Font("Malgun Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
       this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.Name = "ServerForm";
-      this.Text = "Music Player - Server";
+      this.Text = "Music Player Server";
       this.splitContainer1.Panel1.ResumeLayout(false);
       this.splitContainer1.Panel1.PerformLayout();
       this.splitContainer1.Panel2.ResumeLayout(false);

@@ -144,6 +144,7 @@
       this.PbDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this.PbDownload.Location = new System.Drawing.Point(6, 140);
+      this.PbDownload.Maximum = 1000000;
       this.PbDownload.Name = "PbDownload";
       this.PbDownload.Size = new System.Drawing.Size(379, 23);
       this.PbDownload.TabIndex = 3;
@@ -257,6 +258,7 @@
             this.columnHeader10});
       this.lvRemoteList.Dock = System.Windows.Forms.DockStyle.Fill;
       this.lvRemoteList.FullRowSelect = true;
+      this.lvRemoteList.HideSelection = false;
       this.lvRemoteList.Location = new System.Drawing.Point(0, 0);
       this.lvRemoteList.Name = "lvRemoteList";
       this.lvRemoteList.Size = new System.Drawing.Size(388, 250);
@@ -418,7 +420,6 @@
             this.columnHeader4});
       this.LvLocalList.Dock = System.Windows.Forms.DockStyle.Fill;
       this.LvLocalList.FullRowSelect = true;
-      this.LvLocalList.HideSelection = false;
       this.LvLocalList.Location = new System.Drawing.Point(0, 0);
       this.LvLocalList.Name = "LvLocalList";
       this.LvLocalList.Size = new System.Drawing.Size(418, 265);
@@ -468,7 +469,7 @@
       this.Font = new System.Drawing.Font("Malgun Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
       this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.Name = "ClientForm";
-      this.Text = "Music Player - Client";
+      this.Text = "Music Player Client";
       this.splitContainer1.Panel1.ResumeLayout(false);
       this.splitContainer1.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
