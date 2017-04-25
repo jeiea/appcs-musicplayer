@@ -19,15 +19,16 @@ namespace MusicPlayerServer
     CancellationTokenSource WorkerAbort;
     WindowsMediaPlayer Wmp = new WindowsMediaPlayer();
     AsyncManualResetEvent<bool> Dispatcher = new AsyncManualResetEvent<bool>();
-    List<MyBufferBlock<byte[]>> WriteQueues = new List<MyBufferBlock<byte[]>>();
+    MyDispatcher UIDispatcher;
 
     public ServerForm()
     {
       InitializeComponent();
+      UIDispatcher = new MyDispatcher();
       AppDomain.CurrentDomain.UnhandledException += CommonBehavior.OnUnhandledException;
       TbIp.Text = CommonBehavior.GetLocalIPAddress().ToString();
       BtnBrowse.Click += (s, e) =>
-      CommonBehavior.BrowseHandler(TbPath, LvTracks, s, e);
+      CommonBehavior.BrowseHandler(TbPath, LvTracks.Items);
     }
 
     private void BtnToggleClick(object sender, EventArgs e)
@@ -38,9 +39,8 @@ namespace MusicPlayerServer
 
     private void StartServer()
     {
-      if (!CommonBehavior.VerifyPathPort
-        (TbPath, TbIp, TbPort, out IPEndPoint addr))
-        return;
+      if (!CommonBehavior.VerifyPath(TbPath)) return;
+      if (!CommonBehavior.VerifyEndpoint(TbIp, TbPort, out IPEndPoint addr)) return;
 
       TbIp.ReadOnly = TbPort.ReadOnly = TbPath.ReadOnly = true;
       WorkerAbort = new CancellationTokenSource();
@@ -86,7 +86,7 @@ namespace MusicPlayerServer
 
     void Log(string text)
     {
-      Invoke(new Action(() => TbLog.AppendText(text)));
+      UIDispatcher.Post(() => TbLog.AppendText(text));
     }
 
     private async void ClientInstance(TcpClient client)
@@ -112,12 +112,13 @@ namespace MusicPlayerServer
             switch (await readTask)
             {
               case DownloadRequest req:
-                var item = Invoke(new Func<object>(() => LvTracks.Items[req.Index].Tag)) as TrackMetadata;
+                var item = await UIDispatcher.Send(() => LvTracks.Items[req.Index].Tag) as TrackMetadata;
                 var blob = new FileBlob()
                 {
                   Name = Path.GetFileName(item.Path),
                   Body = File.ReadAllBytes(item.Path)
                 };
+                await stream.WriteObjAsync(new Announcement($"Downloading {blob.Name}"));
                 await stream.WriteObjAsync(blob);
                 break;
               case FileBlob file:
@@ -144,37 +145,11 @@ namespace MusicPlayerServer
       }
     }
 
-    private async Task ClientReceiveHandler(NetworkStream reader, MyBufferBlock<byte[]> send)
-    {
-      while (!WorkerAbort.IsCancellationRequested)
-      {
-        switch (await reader.ReadObjAsync())
-        {
-          case DownloadRequest req:
-            var item = Invoke(new Func<object>(() => LvTracks.Items[req.Index].Tag)) as TrackMetadata;
-            var blob = new FileBlob()
-            {
-              Name = Path.GetFileName(item.Path),
-              Body = File.ReadAllBytes(item.Path)
-            };
-            send.Enqueue(SerialUtility.GetPrefixedSerial(blob));
-            break;
-          case FileBlob file:
-            // TODO: File upload
-            break;
-        }
-      }
-    }
-
     private async Task PushTrackList(NetworkStream stream)
     {
-      var metas = Invoke(new Func<TrackMetadata[]>(() =>
-      {
-        var ar = LvTracks.Items
+      var metas = await UIDispatcher.Send(() => LvTracks.Items
           .OfType<ListViewItem>().Select(x => x.Tag)
-          .OfType<TrackMetadata>().ToArray();
-        return ar;
-      }));
+          .OfType<TrackMetadata>().ToArray());
       await stream.WriteObjAsync(metas);
     }
   }

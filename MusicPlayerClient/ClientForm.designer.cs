@@ -177,6 +177,7 @@
       this.BtnDownload.TabIndex = 2;
       this.BtnDownload.Text = "재생 목록에 추가";
       this.BtnDownload.UseVisualStyleBackColor = true;
+      this.BtnDownload.Click += new System.EventHandler(this.BtnDownload_Click);
       // 
       // TbPort
       // 
@@ -201,10 +202,12 @@
       // 
       this.TbPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+      this.TbPath.BackColor = System.Drawing.Color.Pink;
       this.TbPath.Location = new System.Drawing.Point(157, 109);
       this.TbPath.Name = "TbPath";
       this.TbPath.Size = new System.Drawing.Size(224, 23);
       this.TbPath.TabIndex = 1;
+      this.TbPath.TextChanged += new System.EventHandler(this.TbPath_TextChanged);
       // 
       // TbIp
       // 
@@ -372,6 +375,7 @@
       this.BtnDelete.TabIndex = 2;
       this.BtnDelete.Text = "재생 목록에서 삭제";
       this.BtnDelete.UseVisualStyleBackColor = true;
+      this.BtnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
       // 
       // TrProgress
       // 
@@ -381,17 +385,18 @@
       this.TrProgress.Name = "TrProgress";
       this.TrProgress.Size = new System.Drawing.Size(380, 45);
       this.TrProgress.TabIndex = 1;
+      this.TrProgress.TickStyle = System.Windows.Forms.TickStyle.None;
       this.TrProgress.Scroll += new System.EventHandler(this.TrProgress_Scroll);
       // 
       // LbPlayerStatus
       // 
-      this.LbPlayerStatus.Anchor = System.Windows.Forms.AnchorStyles.Top;
-      this.LbPlayerStatus.AutoSize = true;
-      this.LbPlayerStatus.Location = new System.Drawing.Point(135, 15);
+      this.LbPlayerStatus.Anchor = System.Windows.Forms.AnchorStyles.None;
+      this.LbPlayerStatus.Location = new System.Drawing.Point(-21, 9);
       this.LbPlayerStatus.Name = "LbPlayerStatus";
-      this.LbPlayerStatus.Size = new System.Drawing.Size(126, 15);
+      this.LbPlayerStatus.Size = new System.Drawing.Size(461, 20);
       this.LbPlayerStatus.TabIndex = 0;
-      this.LbPlayerStatus.Text = "선택된 곡이 없습니다.";
+      this.LbPlayerStatus.Text = "선택된 곡이 없습니다";
+      this.LbPlayerStatus.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
       // 
       // label5
       // 
@@ -413,6 +418,7 @@
             this.columnHeader4});
       this.LvLocalList.Dock = System.Windows.Forms.DockStyle.Fill;
       this.LvLocalList.FullRowSelect = true;
+      this.LvLocalList.HideSelection = false;
       this.LvLocalList.Location = new System.Drawing.Point(0, 0);
       this.LvLocalList.Name = "LvLocalList";
       this.LvLocalList.Size = new System.Drawing.Size(418, 265);

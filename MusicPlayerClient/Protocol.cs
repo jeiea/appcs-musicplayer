@@ -21,7 +21,7 @@ namespace MusicPlayerCommon
 
     public string Bitrate
     {
-      get { return $"{(FileSize / Convert.ToInt32(Duration.TotalSeconds) * 8 / 1024).ToString()}kbps"; }
+      get { return $"{(FileSize / Math.Max(Convert.ToInt32(Duration.TotalSeconds), 1) * 8 / 1024).ToString()}kbps"; }
     }
 
     public string[] ListItem
@@ -41,6 +41,15 @@ namespace MusicPlayerCommon
   public class DownloadRequest
   {
     public int Index;
+
+    public DownloadRequest(int index) { Index = index; }
+  }
+
+  [Serializable]
+  public class Announcement
+  {
+    public string Message;
+    public Announcement(string messsage) { Message = messsage; }
   }
 
   public static class SerialUtility
@@ -79,24 +88,27 @@ namespace MusicPlayerCommon
       return buf;
     }
 
-    public static async Task<object> ReadObjAsync(this Stream s)
+    public static async Task<object> ReadObjAsync(this Stream s, Action<double> progress = null)
     {
       byte[] lenHeader = await s.ReadLenAsync(sizeof(long));
 
       int len = (int)BitConverter.ToInt64(lenHeader, 0);
-      byte[] buf = await s.ReadLenAsync(len);
+      byte[] buf = await s.ReadLenAsync(len, progress);
 
       return Formatter.Deserialize(new MemoryStream(buf));
     }
     
     // CancellationToken does nothing for NetworkStream.ReadAsync
-    public static async Task<byte[]> ReadLenAsync(this Stream s, int len)
+    public static async Task<byte[]> ReadLenAsync(this Stream s, int len, Action<double> progress = null)
     {
       byte[] buf = new byte[len];
       int read = 0, justRead;
 
       while (read < len && (justRead = await s.ReadAsync(buf, read, len - read)) > 0)
+      {
         read += justRead;
+        if (progress != null) progress((double)read / len);
+      }
       if (read != len) throw new EndOfStreamException();
 
       return buf;

@@ -154,7 +154,6 @@
       this.TbLog.Name = "TbLog";
       this.TbLog.Size = new System.Drawing.Size(237, 480);
       this.TbLog.TabIndex = 0;
-      this.TbLog.WordWrap = false;
       // 
       // label4
       // 
@@ -165,7 +164,7 @@
       this.label4.TabIndex = 2;
       this.label4.Text = "Server Status";
       // 
-      // LvMusics
+      // LvTracks
       // 
       this.LvTracks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader5,
@@ -177,7 +176,7 @@
       this.LvTracks.FullRowSelect = true;
       this.LvTracks.Location = new System.Drawing.Point(0, 20);
       this.LvTracks.MinimumSize = new System.Drawing.Size(100, 100);
-      this.LvTracks.Name = "LvMusics";
+      this.LvTracks.Name = "LvTracks";
       this.LvTracks.Size = new System.Drawing.Size(489, 480);
       this.LvTracks.TabIndex = 0;
       this.LvTracks.UseCompatibleStateImageBehavior = false;

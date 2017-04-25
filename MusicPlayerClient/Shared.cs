@@ -30,16 +30,9 @@ namespace MusicPlayerCommon
         .FirstOrDefault() ?? ipv6;
     }
 
-    public static bool VerifyPathPort(
-      TextBox tbPath, TextBox tbIp, TextBox tbPort,
-      out IPEndPoint addr)
+    public static bool VerifyEndpoint(TextBox tbIp, TextBox tbPort, out IPEndPoint addr)
     {
       addr = null;
-      if (!Directory.Exists(tbPath.Text))
-      {
-        MessageBox.Show("유효한 MP3 파일 저장 경로가 아닙니다.");
-        return false;
-      }
       if (!IPAddress.TryParse(tbIp.Text.Trim(), out IPAddress ip))
       {
         MessageBox.Show("유효한 IP가 아닙니다.");
@@ -54,7 +47,14 @@ namespace MusicPlayerCommon
       return true;
     }
 
-    public static void BrowseHandler(TextBox tbPath, ListView lvTracks, object sender, EventArgs e)
+    public static bool VerifyPath(TextBox tbPath)
+    {
+      if (Directory.Exists(tbPath.Text)) return true;
+      MessageBox.Show("유효한 MP3 파일 저장 경로가 아닙니다.");
+      return false;
+    }
+
+    public static void BrowseHandler(TextBox tbPath, ListView.ListViewItemCollection items)
     {
       var fd = new FolderBrowserDialog();
       fd.RootFolder = Environment.SpecialFolder.MyComputer;
@@ -67,34 +67,65 @@ namespace MusicPlayerCommon
         : @"D:\Jeiea\Study\3학년 1학기\응용소프트웨어\HW2\ServerRepo";
 
       tbPath.Text = fd.SelectedPath;
-      lvTracks.Items.Clear();
+      items.Clear();
       var wmp = new WindowsMediaPlayer();
 
       var exts = new Regex(@"\.(mp[234a]|m4a|aac|mka|wma|wav|flac)$");
       var audios = Directory.EnumerateFiles(tbPath.Text).Where(x => exts.IsMatch(x));
       foreach (var file in audios)
       {
-        var medium = wmp.newMedia(file);
-        long.TryParse(medium.getItemInfo("FileSize"), out long size);
-        // getItemInfoByAtom은 구현이 안 된듯 하다.
-        var meta = new TrackMetadata()
-        {
-          Title = medium.name,
-          Artist = medium.getItemInfo("Artist"),
-          Duration = new TimeSpan(Convert.ToInt64(medium.duration * 10000000)),
-          FileSize = size,
-          Path = file
-        };
-        lvTracks.Items.Add(new ListViewItem(meta.ListItem) { Tag = meta });
+        TrackMetadata meta = GetMetadata(wmp, file);
+        items.Add(new ListViewItem(meta.ListItem) { Tag = meta });
       }
+    }
+
+    public static TrackMetadata GetMetadata(WindowsMediaPlayer wmp, string file)
+    {
+      var medium = wmp.newMedia(file);
+      long.TryParse(medium.getItemInfo("FileSize"), out long size);
+      // getItemInfoByAtom은 구현이 안 된듯 하다.
+      var meta = new TrackMetadata()
+      {
+        Title = medium.name,
+        Artist = medium.getItemInfo("Artist"),
+        Duration = new TimeSpan(Convert.ToInt64(medium.duration * 10000000)),
+        FileSize = size,
+        Path = file
+      };
+      return meta;
+    }
+  }
+
+  public class MyDispatcher
+  {
+    SynchronizationContext Context;
+
+    public MyDispatcher()
+    {
+      Context = SynchronizationContext.Current;
+    }
+
+    public void Post(Action action)
+    {
+      Context.Post(new SendOrPostCallback(o => action()), null);
+    }
+
+    public Task<T> Send<T>(Func<T> expr)
+    {
+      T holder = default(T);
+      return Task.Run(() =>
+      {
+        Context.Send(new SendOrPostCallback(_ => { holder = expr(); }), null);
+        return holder;
+      });
     }
   }
 
   public static class AsyncUtility
   {
-    public static Task IgnoreExceptions(this Task task)
+    public static void IgnoreExceptions(this Task task)
     {
-      return task.ContinueWith(c => { var ignored = c.Exception; },
+      task.ContinueWith(c => { var ignored = c.Exception; },
         TaskContinuationOptions.OnlyOnFaulted |
         TaskContinuationOptions.ExecuteSynchronously);
     }
@@ -135,14 +166,11 @@ namespace MusicPlayerCommon
 
     public void Enqueue(T value)
     {
-      if (Workers.TryDequeue(out TaskCompletionSource<T> worker))
+      while (Workers.TryDequeue(out TaskCompletionSource<T> worker))
       {
-        worker.SetResult(value);
+        if (worker.TrySetResult(value)) return;
       }
-      else
-      {
-        DataQueue.Enqueue(value);
-      }
+      DataQueue.Enqueue(value);
     }
 
     public void Abort()
