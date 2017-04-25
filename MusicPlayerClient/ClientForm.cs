@@ -1,6 +1,7 @@
 ﻿using MusicPlayerCommon;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -14,6 +15,8 @@ using WMPLib;
 
 namespace MusicPlayerClient
 {
+  public enum RepeatType { Sequantial, Random, OnlyRepeat, WholeWrap }
+
   public partial class ClientForm : Form
   {
     Task Worker;
@@ -25,6 +28,8 @@ namespace MusicPlayerClient
     PlayListViewItemCollection Playlist;
     MyDispatcher Dispatcher;
     string ServerMessage;
+    Random Rand = new Random();
+    WMPPlayState PlayState = WMPPlayState.wmppsReady;
 
     public ClientForm()
     {
@@ -35,12 +40,28 @@ namespace MusicPlayerClient
       BtnBrowse.Click += (s, e) => RefreshLocalTracks();
       TbIp.Text = CommonBehavior.GetLocalIPAddress().ToString();
       Playlist = new PlayListViewItemCollection(LvLocalList, Wmp);
+      CbRepeat.SelectedIndex = 0;
+
+      InitializeRepeatTypeCombobox();
 
       Wmp.currentPlaylist = Wmp.newPlaylist("no title", "");
       Wmp.CurrentItemChange += OnWmpMediaChange;
       Wmp.PlayStateChange += OnWmpPlayStateChange;
       Wmp.MediaError += OnWmpMediaError;
       TrackBarTimer.Tick += TrackBarUpdateTick;
+    }
+
+    private void InitializeRepeatTypeCombobox()
+    {
+      var comboItems = new BindingList<Tuple<string, RepeatType>>();
+      comboItems.Add(new Tuple<string, RepeatType>("순차재생", RepeatType.Sequantial));
+      comboItems.Add(new Tuple<string, RepeatType>("랜덤재생", RepeatType.Random));
+      comboItems.Add(new Tuple<string, RepeatType>("한곡반복", RepeatType.OnlyRepeat));
+      comboItems.Add(new Tuple<string, RepeatType>("전체반복", RepeatType.WholeWrap));
+
+      CbRepeat.DataSource = comboItems;
+      CbRepeat.DisplayMember = "Item1";
+      CbRepeat.ValueMember = "Item2";
     }
 
     private void OnWmpMediaError(object pMediaObject)
@@ -62,20 +83,51 @@ namespace MusicPlayerClient
 
     private void OnWmpPlayStateChange(int NewState)
     {
-      if (Wmp.playState == WMPPlayState.wmppsPaused ||
-          Wmp.playState == WMPPlayState.wmppsStopped)
+      var media = Wmp.currentMedia;
+      switch (Wmp.playState)
       {
-        TrackBarTimer.Enabled = false;
-        PlayButton.Image = Properties.Resources.Play;
-        TbPath.ReadOnly = false;
-        TbPath.BackColor = Color.LightGreen;
+        case WMPPlayState.wmppsPaused:
+        case WMPPlayState.wmppsStopped:
+        case WMPPlayState.wmppsReady:
+          TrackBarTimer.Enabled = false;
+          PlayButton.Image = Properties.Resources.Play;
+          TbPath.ReadOnly = false;
+          TbPath.BackColor = Color.LightGreen;
+          PlayState = WMPPlayState.wmppsPaused;
+          break;
+        case WMPPlayState.wmppsPlaying:
+          TrackBarTimer.Enabled = true;
+          PlayButton.Image = Properties.Resources.Pause;
+          TbPath.ReadOnly = true;
+          TbPath.BackColor = DefaultBackColor;
+          PlayState = WMPPlayState.wmppsPlaying;
+          break;
+        case WMPPlayState.wmppsMediaEnded:
+          DetermineRepeat();
+          break;
       }
-      else if (Wmp.playState == WMPPlayState.wmppsPlaying)
+    }
+
+    private void DetermineRepeat()
+    {
+      var count = Wmp.currentPlaylist.count;
+      switch (CbRepeat.SelectedValue as RepeatType? ?? RepeatType.Sequantial)
       {
-        TrackBarTimer.Enabled = true;
-        PlayButton.Image = Properties.Resources.Pause;
-        TbPath.ReadOnly = true;
-        TbPath.BackColor = DefaultBackColor;
+        case RepeatType.Sequantial:
+          break;
+        case RepeatType.Random:
+          Wmp.controls.playItem(Wmp.currentPlaylist.Item[Rand.Next(count)]);
+          break;
+        case RepeatType.OnlyRepeat:
+          Wmp.controls.previous();
+          break;
+        case RepeatType.WholeWrap:
+          var lastItem = Wmp.currentPlaylist.Item[count - 1];
+          if (Wmp.currentMedia.isIdentical[lastItem])
+          {
+            Wmp.controls.play();
+          }
+          break;
       }
     }
 
@@ -95,6 +147,7 @@ namespace MusicPlayerClient
       var media = Wmp.currentMedia;
       LbPlayerStatus.Text = media.name;
       TrProgress.Maximum = (int)(Convert.ToDouble(media.duration) * 1000 / TrackBarTimer.Interval);
+      TrackBarUpdateTick(null, null);
     }
 
     private void BtnToggleClick(object sender, EventArgs e)
@@ -237,25 +290,33 @@ namespace MusicPlayerClient
       Wmp.controls.currentPosition = (double)TrProgress.Value / 1000 * TrackBarTimer.Interval;
     }
 
-    private void BtnPrev_Click(object sender, EventArgs e)
+    private void OnNavigation(object sender, EventArgs e)
     {
-      if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[0]])
+      var isNext = sender == BtnNext;
+      switch (CbRepeat.SelectedValue as RepeatType?)
       {
-        MessageBox.Show("재생목록 처음 곡입니다.");
-        return;
+        case RepeatType.Sequantial:
+          int idx = isNext ? Wmp.currentPlaylist.count - 1 : 0;
+          string reason = isNext ? "마지막" : "처음";
+          if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[idx]]) {
+            MessageBox.Show($"재생목록 {reason} 곡입니다.");
+            return;
+          }
+          if (isNext) Wmp.controls.next();
+          else Wmp.controls.previous();
+          break;
+        case RepeatType.Random:
+          for (int i = Rand.Next(1, Wmp.currentPlaylist.count); i > 0; i--)
+            Wmp.controls.next();
+          break;
+        case RepeatType.OnlyRepeat:
+          Wmp.controls.currentPosition = 0;
+          break;
+        case RepeatType.WholeWrap:
+          if (isNext) Wmp.controls.next();
+          else Wmp.controls.previous();
+          break;
       }
-      Wmp.controls.previous();
-      TrackBarUpdateTick(null, null);
-    }
-
-    private void NextButton_Click(object sender, EventArgs e)
-    {
-      if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[Wmp.currentPlaylist.count - 1]])
-      {
-        MessageBox.Show("재생목록 마지막 곡입니다.");
-        return;
-      }
-      Wmp.controls.next();
       TrackBarUpdateTick(null, null);
     }
 
@@ -292,6 +353,22 @@ namespace MusicPlayerClient
       {
         Playlist.Clear();
         TbPath.BackColor = Color.Pink;
+      }
+    }
+
+    private void BtnUpload_Click(object sender, EventArgs e)
+    {
+      var uploads = LvLocalList.SelectedItems
+        .OfType<ListViewItem>().Select(x => x.Tag)
+        .OfType<IWMPMedia>().Select(x => x.sourceURL);
+      foreach (var path in uploads)
+      {
+        var file = new FileBlob()
+        {
+          Name = Path.GetFileName(path),
+          Body = File.ReadAllBytes(path)
+        };
+        WriteQueues.Enqueue(file);
       }
     }
   }

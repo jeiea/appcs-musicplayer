@@ -50,9 +50,11 @@
       this.columnHeader10 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.groupBox2 = new System.Windows.Forms.GroupBox();
       this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-      this.NextButton = new System.Windows.Forms.Button();
+      this.CbRepeat = new System.Windows.Forms.ComboBox();
+      this.BtnNext = new System.Windows.Forms.Button();
       this.PlayButton = new System.Windows.Forms.Button();
       this.BtnPrev = new System.Windows.Forms.Button();
+      this.BtnUpload = new System.Windows.Forms.Button();
       this.BtnDelete = new System.Windows.Forms.Button();
       this.TrProgress = new System.Windows.Forms.TrackBar();
       this.LbPlayerStatus = new System.Windows.Forms.Label();
@@ -172,9 +174,9 @@
       // BtnDownload
       // 
       this.BtnDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.BtnDownload.Location = new System.Drawing.Point(230, 172);
+      this.BtnDownload.Location = new System.Drawing.Point(253, 182);
       this.BtnDownload.Name = "BtnDownload";
-      this.BtnDownload.Size = new System.Drawing.Size(155, 41);
+      this.BtnDownload.Size = new System.Drawing.Size(132, 31);
       this.BtnDownload.TabIndex = 2;
       this.BtnDownload.Text = "재생 목록에 추가";
       this.BtnDownload.UseVisualStyleBackColor = true;
@@ -320,9 +322,11 @@
       // 
       // splitContainer3.Panel1
       // 
-      this.splitContainer3.Panel1.Controls.Add(this.NextButton);
+      this.splitContainer3.Panel1.Controls.Add(this.CbRepeat);
+      this.splitContainer3.Panel1.Controls.Add(this.BtnNext);
       this.splitContainer3.Panel1.Controls.Add(this.PlayButton);
       this.splitContainer3.Panel1.Controls.Add(this.BtnPrev);
+      this.splitContainer3.Panel1.Controls.Add(this.BtnUpload);
       this.splitContainer3.Panel1.Controls.Add(this.BtnDelete);
       this.splitContainer3.Panel1.Controls.Add(this.TrProgress);
       this.splitContainer3.Panel1.Controls.Add(this.LbPlayerStatus);
@@ -335,16 +339,31 @@
       this.splitContainer3.SplitterDistance = 200;
       this.splitContainer3.TabIndex = 0;
       // 
+      // CbRepeat
+      // 
+      this.CbRepeat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.CbRepeat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      this.CbRepeat.FormattingEnabled = true;
+      this.CbRepeat.Items.AddRange(new object[] {
+            "순차재생",
+            "랜덤재생",
+            "한곡반복",
+            "순차반복"});
+      this.CbRepeat.Location = new System.Drawing.Point(84, 172);
+      this.CbRepeat.Name = "CbRepeat";
+      this.CbRepeat.Size = new System.Drawing.Size(92, 23);
+      this.CbRepeat.TabIndex = 3;
+      // 
       // NextButton
       // 
-      this.NextButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-      this.NextButton.Image = global::MusicPlayerClient.Properties.Resources.Next;
-      this.NextButton.Location = new System.Drawing.Point(263, 68);
-      this.NextButton.Name = "NextButton";
-      this.NextButton.Size = new System.Drawing.Size(79, 78);
-      this.NextButton.TabIndex = 2;
-      this.NextButton.UseVisualStyleBackColor = true;
-      this.NextButton.Click += new System.EventHandler(this.NextButton_Click);
+      this.BtnNext.Anchor = System.Windows.Forms.AnchorStyles.Top;
+      this.BtnNext.Image = global::MusicPlayerClient.Properties.Resources.Next;
+      this.BtnNext.Location = new System.Drawing.Point(263, 68);
+      this.BtnNext.Name = "NextButton";
+      this.BtnNext.Size = new System.Drawing.Size(79, 78);
+      this.BtnNext.TabIndex = 2;
+      this.BtnNext.UseVisualStyleBackColor = true;
+      this.BtnNext.Click += new System.EventHandler(this.OnNavigation);
       // 
       // PlayButton
       // 
@@ -366,14 +385,25 @@
       this.BtnPrev.Size = new System.Drawing.Size(79, 78);
       this.BtnPrev.TabIndex = 2;
       this.BtnPrev.UseVisualStyleBackColor = true;
-      this.BtnPrev.Click += new System.EventHandler(this.BtnPrev_Click);
+      this.BtnPrev.Click += new System.EventHandler(this.OnNavigation);
+      // 
+      // BtnUpload
+      // 
+      this.BtnUpload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.BtnUpload.Location = new System.Drawing.Point(189, 167);
+      this.BtnUpload.Name = "BtnUpload";
+      this.BtnUpload.Size = new System.Drawing.Size(79, 31);
+      this.BtnUpload.TabIndex = 2;
+      this.BtnUpload.Text = "업로드";
+      this.BtnUpload.UseVisualStyleBackColor = true;
+      this.BtnUpload.Click += new System.EventHandler(this.BtnUpload_Click);
       // 
       // BtnDelete
       // 
       this.BtnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.BtnDelete.Location = new System.Drawing.Point(260, 157);
+      this.BtnDelete.Location = new System.Drawing.Point(283, 167);
       this.BtnDelete.Name = "BtnDelete";
-      this.BtnDelete.Size = new System.Drawing.Size(155, 41);
+      this.BtnDelete.Size = new System.Drawing.Size(132, 31);
       this.BtnDelete.TabIndex = 2;
       this.BtnDelete.Text = "재생 목록에서 삭제";
       this.BtnDelete.UseVisualStyleBackColor = true;
@@ -510,7 +540,7 @@
     private System.Windows.Forms.Button BtnDownload;
     private System.Windows.Forms.Label label4;
     private System.Windows.Forms.TrackBar TrProgress;
-    private System.Windows.Forms.Button NextButton;
+    private System.Windows.Forms.Button BtnNext;
     private System.Windows.Forms.Button PlayButton;
     private System.Windows.Forms.Button BtnToggle;
     private System.Windows.Forms.Label label1;
@@ -528,6 +558,8 @@
     private System.Windows.Forms.ColumnHeader columnHeader8;
     private System.Windows.Forms.ColumnHeader columnHeader9;
     private System.Windows.Forms.ColumnHeader columnHeader10;
+    private System.Windows.Forms.Button BtnUpload;
+    private System.Windows.Forms.ComboBox CbRepeat;
   }
 }
 

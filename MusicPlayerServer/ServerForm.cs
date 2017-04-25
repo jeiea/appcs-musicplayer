@@ -124,7 +124,20 @@ namespace MusicPlayerServer
                 //await stream.WriteObjAsync(blob);
                 break;
               case FileBlob file:
-                // TODO: File upload
+                var repo = await UIDispatcher.Send(() => TbPath.Text);
+                var path = Path.Combine(repo, file.Name);
+                var preExists = File.Exists(path);
+                try
+                {
+                  using (FileStream fs = File.Create(path))
+                  {
+                    await fs.WriteAsync(file.Body, 0, file.Body.Length).ConfigureAwait(false);
+                  }
+                }
+                catch (Exception e)
+                {
+                  Log(e.Message + "\r\n");
+                }
                 break;
             }
             readTask = stream.ReadObjAsync();

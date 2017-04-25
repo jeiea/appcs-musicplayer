@@ -61,8 +61,7 @@ namespace MusicPlayerCommon
       await WriteObjAsync(s, o, CancellationToken.None);
     }
 
-    public static async Task WriteObjAsync(this Stream s, object o,
-      CancellationToken token, int bytesPerSec = 0)
+    public static async Task WriteObjAsync(this Stream s, object o, CancellationToken token)
     {
       MemoryStream ms = GetPrefixedSerialStream(o);
       token.ThrowIfCancellationRequested();
