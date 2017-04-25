@@ -60,13 +60,16 @@ namespace MusicPlayerCommon
       fd.RootFolder = Environment.SpecialFolder.MyComputer;
 
       // TODO: 테스트 코드 제거
-      //if (fd.ShowDialog() != DialogResult.OK) return;
+      //if (!Directory.Exists(tbPath.Text))
+      //{
+      //  if (fd.ShowDialog() != DialogResult.OK) return;
+      //  tbPath.Text = fd.SelectedPath;
+      //}
       var name = System.Reflection.Assembly.GetEntryAssembly().FullName;
-      fd.SelectedPath = name.StartsWith("MusicPlayerClient")
+      tbPath.Text = name.StartsWith("MusicPlayerClient")
         ? @"D:\Jeiea\Study\3학년 1학기\응용소프트웨어\HW2\ClientRepo"
         : @"D:\Jeiea\Study\3학년 1학기\응용소프트웨어\HW2\ServerRepo";
 
-      tbPath.Text = fd.SelectedPath;
       items.Clear();
       var wmp = new WindowsMediaPlayer();
 
@@ -206,7 +209,7 @@ namespace MusicPlayerCommon
       tcs.Task.Wait();
     }
 
-    public void Set(T value)
+    public void Set(T value = default(T))
     {
       var tcs = m_tcs;
       Task.Factory.StartNew(s => ((TaskCompletionSource<T>)s).TrySetResult(value),

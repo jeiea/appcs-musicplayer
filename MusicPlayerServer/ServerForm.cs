@@ -28,7 +28,11 @@ namespace MusicPlayerServer
       AppDomain.CurrentDomain.UnhandledException += CommonBehavior.OnUnhandledException;
       TbIp.Text = CommonBehavior.GetLocalIPAddress().ToString();
       BtnBrowse.Click += (s, e) =>
-      CommonBehavior.BrowseHandler(TbPath, LvTracks.Items);
+      {
+        CommonBehavior.BrowseHandler(TbPath, LvTracks.Items);
+        Dispatcher.Set();
+        Dispatcher.Reset();
+      };
     }
 
     private void BtnToggleClick(object sender, EventArgs e)
@@ -91,7 +95,7 @@ namespace MusicPlayerServer
 
     private async void ClientInstance(TcpClient client)
     {
-      string ip = (client.Client.RemoteEndPoint as IPEndPoint)?.Address.ToString();
+      string ip = (client.Client.RemoteEndPoint as IPEndPoint)?.ToString();
       Log($"Connected from {ip}\r\n");
       try
       {
@@ -124,7 +128,11 @@ namespace MusicPlayerServer
                 //await stream.WriteObjAsync(blob);
                 break;
               case FileBlob file:
-                var repo = await UIDispatcher.Send(() => TbPath.Text);
+                var repo = await UIDispatcher.Send(() =>
+                {
+                  TbLog.AppendText($"{ip} is uploading {file.Name}\r\n");
+                  return TbPath.Text;
+                });
                 var path = Path.Combine(repo, file.Name);
                 var preExists = File.Exists(path);
                 try
@@ -133,6 +141,11 @@ namespace MusicPlayerServer
                   {
                     await fs.WriteAsync(file.Body, 0, file.Body.Length).ConfigureAwait(false);
                   }
+                  UIDispatcher.Post(() =>
+                  {
+                    TbLog.AppendText($"{ip} uploaded {file.Name}\r\n");
+                    BtnBrowse.PerformClick();
+                  });
                 }
                 catch (Exception e)
                 {
