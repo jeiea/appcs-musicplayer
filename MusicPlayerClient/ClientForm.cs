@@ -65,26 +65,25 @@ namespace MusicPlayerClient
 
     private void OnWmpMediaError(object pMediaObject)
     {
-      string name = Wmp.currentMedia.name;
+      if (!(pMediaObject is IWMPMedia errorMedia)) return;
+      string name = errorMedia.name;
       if (string.IsNullOrEmpty(name))
         name = Wmp.currentMedia.sourceURL;
       MessageBox.Show("음악 파일이 이상합니다. 재생목록에서 제거합니다.\r\n" + name);
       for (int i = Wmp.currentPlaylist.count - 1; i >= 0; i--)
       {
-        if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[i]])
+        if (errorMedia.isIdentical[Wmp.currentPlaylist.Item[i]])
         {
-          Wmp.currentPlaylist.removeItem(Wmp.currentMedia);
+          Wmp.currentPlaylist.removeItem(errorMedia);
           Playlist.RemoveAt(i);
-          Wmp.controls.play();
         }
       }
+      Wmp.controls.play();
     }
 
-    private void OnWmpPlayStateChange(int NewState)
+    private void OnWmpPlayStateChange(int newState)
     {
-      System.Diagnostics.Debug.WriteLine($"OnWmpPlayStateChange: {Wmp.playState}");
-      var media = Wmp.currentMedia;
-      switch (Wmp.playState)
+      switch ((WMPPlayState)newState)
       {
         case WMPPlayState.wmppsPaused:
         case WMPPlayState.wmppsStopped:
@@ -116,7 +115,8 @@ namespace MusicPlayerClient
         case RepeatType.Sequantial:
           break;
         case RepeatType.Random:
-          Wmp.controls.playItem(Wmp.currentPlaylist.Item[Rand.Next(count)]);
+          for (int i = Rand.Next(0, Wmp.currentPlaylist.count - 1); i > 0; i--)
+            Wmp.controls.next();
           break;
         case RepeatType.OnlyRepeat:
           Wmp.controls.previous();
@@ -139,14 +139,15 @@ namespace MusicPlayerClient
     private void TrackBarUpdateTick(object sender, EventArgs e)
     {
       double cur = Convert.ToDouble(Wmp.controls.currentPosition);
-      TrProgress.Value = (int)(cur * 1000 / TrackBarTimer.Interval);
+      TrProgress.Value = Math.Min((int)(cur * 1000 / TrackBarTimer.Interval), TrProgress.Maximum);
     }
 
     private void OnWmpMediaChange(object obj)
     {
-      var media = Wmp.currentMedia;
-      System.Diagnostics.Debug.WriteLine($"OnWmpMediaChange: {media.name ?? "null"}");
+      if (!(obj is IWMPMedia media)) return;
       LbPlayerStatus.Text = media.name;
+      for (int i = 0; i < 3 && media.duration == 0; i++) ;
+      if (media.duration == 0) media = Wmp.currentMedia;
       TrProgress.Maximum = (int)(Convert.ToDouble(media.duration) * 1000 / TrackBarTimer.Interval);
       TrackBarUpdateTick(null, null);
     }
@@ -155,8 +156,15 @@ namespace MusicPlayerClient
     {
       if (Worker != null)
       {
-        WorkerAbort.Cancel();
-        Worker.Wait(100);
+        try
+        {
+          WorkerAbort.Cancel();
+          Worker.Wait(100);
+        }
+        catch (Exception exc)
+        {
+          MessageBox.Show(exc.Message);
+        }
         ReflectDisconnection();
         return;
       }
@@ -299,7 +307,8 @@ namespace MusicPlayerClient
         case RepeatType.Sequantial:
           int idx = isNext ? Wmp.currentPlaylist.count - 1 : 0;
           string reason = isNext ? "마지막" : "처음";
-          if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[idx]]) {
+          if (Wmp.currentMedia.isIdentical[Wmp.currentPlaylist.Item[idx]])
+          {
             MessageBox.Show($"재생목록 {reason} 곡입니다.");
             return;
           }

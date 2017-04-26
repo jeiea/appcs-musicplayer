@@ -156,7 +156,7 @@ namespace MusicPlayerCommon
       else
       {
         Workers.Enqueue(ret);
-        token.Register(new Action(() => ret.SetException(new TaskCanceledException())));
+        token.Register(new Action(() => ret.TrySetException(new TaskCanceledException())));
       }
       return ret.Task;
     }

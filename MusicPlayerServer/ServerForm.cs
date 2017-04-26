@@ -70,7 +70,7 @@ namespace MusicPlayerServer
       {
         listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
         listener.Start();
-        Log($"Server starts on {TbPath.Text}\r\nWaiting clients...\r\n");
+        Log($"Server starts on {TbPath.Text}\r\nWaiting for clients...\r\n");
 
         var token = WorkerAbort.Token;
         while (!token.IsCancellationRequested)
@@ -121,6 +121,7 @@ namespace MusicPlayerServer
                   Name = Path.GetFileName(item.Path),
                   Body = File.ReadAllBytes(item.Path)
                 };
+                Log($"{ip} requested {blob.Name}\r\n");
                 await stream.WriteObjAsync(new Announcement($"Downloading {blob.Name}"));
                 await new MemoryStream(SerialUtility.GetPrefixedSerial(blob))
                   .ThrottleCopyTo(stream, 2 * 1024 * 1024, token);
@@ -163,7 +164,7 @@ namespace MusicPlayerServer
       }
       catch (Exception e)
       {
-        Log(e.Message);
+        Log(e.Message + "\r\n");
       }
       finally
       {
