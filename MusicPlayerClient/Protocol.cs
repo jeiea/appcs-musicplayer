@@ -123,7 +123,7 @@ namespace MusicPlayerCommon
       while (read < len && (justRead = await s.ReadAsync(buf, read, len - read)) > 0)
       {
         read += justRead;
-        if (progress != null) progress((double)read / len);
+        progress?.Invoke((double)read / len);
       }
       if (read != len) throw new EndOfStreamException();
 
